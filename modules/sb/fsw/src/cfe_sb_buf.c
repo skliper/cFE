@@ -109,6 +109,14 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
         return NULL;
     }
 
+#if 0
+    CFE_ES_AppId_t appid;
+    char appname[20];
+    CFE_ES_GetAppID(&appid);
+    CFE_ES_GetAppName(appname, appid, sizeof(appname));
+    CFE_ES_WriteToSysLog("SB: %s requested %lu, stat 0x%08x, addr = 0x%p\n", appname, MaxMsgSize, stat1, addr);
+#endif
+
     /* increment the number of buffers in use and adjust the high water mark if needed */
     CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse++;
     if (CFE_SB_Global.StatTlmMsg.Payload.SBBuffersInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakSBBuffersInUse)
