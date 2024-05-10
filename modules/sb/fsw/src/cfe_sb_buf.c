@@ -118,6 +118,12 @@ CFE_SB_BufferD_t *CFE_SB_GetBufferFromPool(size_t MaxMsgSize)
 
     /* Add the size of the actual buffer to the memory-in-use ctr and */
     /* adjust the high water mark if needed */
+#if 0
+    CFE_ES_MemPoolStats_t PoolStats;
+    CFE_ES_GetMemPoolStats(&PoolStats, CFE_SB_Global.Mem.PoolHdl);
+    CFE_ES_WriteToSysLog("CFE SB alloc size = %ld, actual size = %d, pool num free %d\n", AllocSize,
+                         CFE_ES_GetPoolBufInfo(CFE_SB_Global.Mem.PoolHdl, addr), PoolStats.NumFreeBytes);
+#endif
     CFE_SB_Global.StatTlmMsg.Payload.MemInUse += AllocSize;
     if (CFE_SB_Global.StatTlmMsg.Payload.MemInUse > CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse)
     {

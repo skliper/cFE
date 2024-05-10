@@ -344,6 +344,12 @@ int32 CFE_SB_SendHKTlmCmd(const CFE_SB_SendHkCmd_t *data)
     CFE_SB_Global.HKTlmMsg.Payload.UnmarkedMem =
         CFE_PLATFORM_SB_BUF_MEMORY_BYTES - CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse;
 
+    CFE_ES_MemPoolStats_t PoolStats;
+    CFE_ES_GetMemPoolStats(&PoolStats, CFE_SB_Global.Mem.PoolHdl);
+    CFE_ES_WriteToSysLog("CFE SB Memory info: in use %d, peak %d, total %d, poolfree %d\n",
+                         CFE_SB_Global.StatTlmMsg.Payload.MemInUse, CFE_SB_Global.StatTlmMsg.Payload.PeakMemInUse,
+                         CFE_PLATFORM_SB_BUF_MEMORY_BYTES, PoolStats.NumFreeBytes);
+
     CFE_SB_UnlockSharedData(__FILE__, __LINE__);
 
     CFE_SB_TimeStampMsg(CFE_MSG_PTR(CFE_SB_Global.HKTlmMsg.TelemetryHeader));
