@@ -39,6 +39,7 @@
 #include "cfe_sb.h"
 
 #include <string.h>
+#include <sys/time.h>
 
 /*----------------------------------------------------------------
  *
@@ -107,13 +108,14 @@ CFE_TIME_SysTime_t CFE_TIME_LatchClock(void)
 void CFE_TIME_QueryResetVars(void)
 {
     CFE_TIME_ResetVars_t                LocalResetVars;
-    uint32                              DefSubsMET;
-    uint32                              DefSubsSTCF;
+/*  uint32                              DefSubsMET;
+    uint32                              DefSubsSTCF; */
     int32                               PspStatus;
     volatile CFE_TIME_ReferenceState_t *RefState;
     uint32                              resetAreaSize;
     cpuaddr                             resetAreaAddr;
     CFE_ES_ResetData_t *                CFE_TIME_ResetDataPtr;
+    struct timeval                      tv;
 
     RefState = CFE_TIME_StartReferenceUpdate();
 
@@ -167,14 +169,24 @@ void CFE_TIME_QueryResetVars(void)
     */
     if (CFE_TIME_Global.DataStoreStatus != CFE_TIME_RESET_AREA_EXISTING)
     {
+        /*
         DefSubsMET  = CFE_TIME_Micro2SubSecs(CFE_MISSION_TIME_DEF_MET_SUBS);
         DefSubsSTCF = CFE_TIME_Micro2SubSecs(CFE_MISSION_TIME_DEF_STCF_SUBS);
-
         RefState->AtToneMET.Seconds      = CFE_MISSION_TIME_DEF_MET_SECS;
         RefState->AtToneMET.Subseconds   = DefSubsMET;
         RefState->AtToneSTCF.Seconds     = CFE_MISSION_TIME_DEF_STCF_SECS;
         RefState->AtToneSTCF.Subseconds  = DefSubsSTCF;
         RefState->AtToneLeapSeconds      = CFE_MISSION_TIME_DEF_LEAPS;
+        */
+
+        /* TODO Override values to Jam local time in */
+        gettimeofday(&tv, NULL);
+        RefState->AtToneMET.Seconds      = tv.tv_sec - 315532800;
+        RefState->AtToneMET.Subseconds   = CFE_TIME_Micro2SubSecs(tv.tv_usec);
+        RefState->AtToneSTCF.Seconds     = 0;
+        RefState->AtToneSTCF.Subseconds  = 0;
+        RefState->AtToneLeapSeconds      = 0;
+
         CFE_TIME_Global.ClockSignal      = CFE_TIME_ToneSignalSelect_PRIMARY;
         RefState->AtToneDelay.Seconds    = 0;
         RefState->AtToneDelay.Subseconds = 0;
